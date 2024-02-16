@@ -1,0 +1,65 @@
+name: lukekim.smart.drive_stats_with_local
+type: view
+migrations:
+  - name: create_view
+    sql: |
+    with aggregated_data as (
+      SELECT 
+        Cast(time_unix_nano / 1e9 AS BIGINT) AS ts, 
+        model, 
+        NAME, 
+        serial_no, 
+        id, 
+        "value" 
+      FROM 
+        lukekim.smart.drive_stats
+    ), 
+    uploaded_data as (
+      SELECT 
+        to_timestamp(t.ts) as ts, 
+        t.model, 
+        t.serial_no as serial_number, 
+        cast(
+          max(
+            CASE WHEN t.id = 194 THEN t."value" END
+          ) AS DOUBLE
+        ) AS smart_194, 
+        cast(
+          max(
+            CASE WHEN t.id = 12 THEN t."value" END
+          ) AS DOUBLE
+        ) AS smart_12, 
+        cast(
+          max(CASE WHEN t.id = 9 THEN t."value" END) AS DOUBLE
+        ) AS smart_9, 
+        cast(0.0 AS DOUBLE) AS y 
+      FROM 
+        aggregated_data t 
+      GROUP BY 
+        t.ts, 
+        t.model, 
+        t.serial_no 
+      ORDER BY 
+        t.ts DESC
+    )
+    CREATE OR REPLACE VIEW lukekim.smart.drive_stats_with_local AS (
+    SELECT 
+      cast(ts as TIMESTAMP) as ts, 
+      life_percent as y, 
+      smart_9_raw, 
+      smart_12_raw, 
+      smart_194_raw, 
+      serial_number 
+    FROM 
+      spiceai.datasets.smart_failures 
+    UNION ALL
+    SELECT 
+      cast(ts as TIMESTAMP) as ts, 
+      y, 
+      smart_9 as smart_9_raw, 
+      smart_12 as smart_12_raw, 
+      smart_194 as smart_194_raw, 
+      serial_number 
+    FROM 
+      uploaded_data
+    )
