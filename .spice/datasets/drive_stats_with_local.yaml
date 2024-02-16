@@ -3,7 +3,7 @@ type: view
 migrations:
   - name: create_view
     sql: |
-      with aggregated_data as (
+    with aggregated_data as (
       SELECT 
         Cast(time_unix_nano / 1e9 AS BIGINT) AS ts, 
         model, 
@@ -41,7 +41,8 @@ migrations:
         t.serial_no 
       ORDER BY 
         t.ts DESC
-    ) 
+    )
+    CREATE OR REPLACE VIEW lukekim.smart.drive_stats_with_local AS (
     SELECT 
       cast(ts as TIMESTAMP) as ts, 
       life_percent as y, 
@@ -61,3 +62,4 @@ migrations:
       serial_number 
     FROM 
       uploaded_data
+    )
