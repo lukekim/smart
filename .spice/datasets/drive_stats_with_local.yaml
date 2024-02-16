@@ -42,16 +42,28 @@ migrations:
             t.serial_no 
           ORDER BY 
             t.ts DESC
-        )
+        ),
+        daily_data as (
         SELECT 
-          ts,
-          y as life_percent, 
-          smart_9 as smart_9_raw, 
-          smart_12 as smart_12_raw, 
-          smart_194 as smart_194_raw, 
+          (ts / 3600000 / 24 * 24 * 3600000) as ts,
+          max(y) as life_percent, 
+          max(smart_9) as smart_9_raw, 
+          max(smart_12) as smart_12_raw, 
+          max(smart_194) as smart_194_raw, 
           serial_number 
         FROM 
           uploaded_data
+        group by ts, serial_number
+        )
+        SELECT 
+          ts,
+          life_percent, 
+          smart_9_raw, 
+          smart_12_raw, 
+          smart_194_raw, 
+          serial_number 
+        FROM 
+          daily_data
         union
         SELECT 
           ts, 
