@@ -52,7 +52,7 @@ migrations:
           serial_number 
         FROM 
           uploaded_data
-        union all
+        union
         SELECT 
           ts, 
           life_percent, 
