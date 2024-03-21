@@ -9,16 +9,16 @@ normalizing:
 training:
   sql: |
     SELECT cast(ts as timestamp) as ts, life_percent as y, smart_9_raw, smart_12_raw, smart_194_raw, serial_number
-    FROM spiceai.datasets.smart_failures
+    FROM lukekim.smart.drive_stats_with_local
     ORDER BY ts
 inferencing:
   sql: |
     SELECT
       cast(ts as BIGINT) as ts, CAST(0.0 as double) as y, smart_9_raw, smart_12_raw, smart_194_raw, serial_number
-    FROM spiceai.datasets.smart_failures
+    FROM lukekim.smart.drive_stats_with_local
     WHERE serial_number = '0ba020d2e25cc022'
     ORDER BY ts
-  lookback_size: 4
+  lookback_size: 10
   forecast_size: 1
 metadata:
   covariate: true
